@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loot Case Continuous Slider System</title>
+    <style>
+        /* Reset some default styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #333;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 600px;
+            overflow: hidden;
+            border: 3px solid #f4f4f4;
+            border-radius: 15px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.4);
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .slider {
+            display: flex;
+            transition: transform 3s ease-out;
+            position: relative;
+            flex-wrap: nowrap;
+        }
+
+        .item {
+            min-width: 300px;
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-right: 1px solid #555;
+            background: #444;
+            transition: transform 0.3s;
+            position: relative;
+        }
+
+        .item:hover {
+            transform: scale(1.1);
+            background: #555;
+            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.4);
+        }
+
+        /* Style for "Rare Item" */
+        .rare {
+            background: #ffcc00;
+            color: #333;
+            border-color: #f4f4f4;
+        }
+
+        /* Style for "Ultra Rare Item" */
+        .ultra-rare {
+            background: #ff3333;
+            color: #fff;
+            border-color: #f4f4f4;
+        }
+
+        .arrow {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 30px solid #ffcc00;
+            transition: left 3s ease-out;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 15px 20px;
+            border: none;
+            background-color: #f4f4f4;
+            color: #333;
+            cursor: pointer;
+            border-radius: 7px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #ddd;
+        }
+
+        #winnerMessage {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="slider" id="slider">
+            <!-- Add an arrow div in the middle -->
+            <div class="arrow" id="arrow"></div>
+        </div>
+    </div>
+    <button id="openCase">Open Case</button>
+    <div id="winnerMessage"></div>
+
+    <script>
+        let isAnimating = false;
+
+        function getRandomRarity() {
+    // Generate a random number between 1 and 100
+            const randomNumber = Math.floor(Math.random() * 100) + 1;
+            let rarityClass = '';
+
+            if (randomNumber <= 2) {
+                // 2% chance for Ultra Rare Item
+                rarityClass = 'ultra-rare';
+            } else if (randomNumber <= 15) {
+                // 13% chance for Rare Item
+                rarityClass = 'rare';
+            }
+
+            return rarityClass;
+        }
+
+
+        function shuffleArray(array) {
+            // Fisher-Yates shuffle algorithm
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function appendItems() {
+            const slider = document.getElementById('slider');
+            const predefinedItems = [
+                { name: 'Item 1', rarityClass: '' },
+                { name: 'Item 2', rarityClass: '' },
+                { name: 'Item 3', rarityClass: '' },
+                { name: 'Item 4', rarityClass: 'rare' },
+                { name: 'Item 5', rarityClass: 'ultra-rare' }
+            ];
+
+            // Shuffle the predefined items
+            shuffleArray(predefinedItems);
+
+            predefinedItems.forEach(item => {
+                const rarity = item.rarityClass;
+                const div = document.createElement('div');
+                div.className = `item ${rarity}`;
+                div.textContent = item.name;
+                slider.appendChild(div);
+            });
+        }
+
+        function appendMoreItems() {
+            appendItems();
+            appendItems();
+        }
+
+        appendItems();
+
+        document.getElementById('openCase').addEventListener('click', function () {
+            if (isAnimating) {
+                return;
+            }
+
+            isAnimating = true;
+
+            const slider = document.getElementById('slider');
+            const middleOffset = slider.clientWidth / 2;
+            let offset = Math.floor(Math.random() * slider.scrollWidth - middleOffset);
+
+            if (offset < 0) {
+                offset = 0;
+            }
+
+            slider.style.transition = 'transform 3s ease-out';
+            slider.style.transform = `translateX(-${offset}px)`;
+
+            const arrow = document.getElementById('arrow');
+            arrow.style.left = `calc(50% + ${offset}px)`;
+
+            setTimeout(() => {
+                const items = document.querySelectorAll('.item');
+                const selectedItemIndex = Math.floor((offset + middleOffset) / 300);
+
+                if (selectedItemIndex >= 0 && selectedItemIndex < items.length) {
+                    const winningItem = items[selectedItemIndex].textContent;
+                    document.getElementById('winnerMessage').textContent = `You won ${winningItem}!`;
+                } else {
+                    console.error('Invalid selectedItemIndex:', selectedItemIndex);
+                }
+
+                isAnimating = false;
+
+                if (slider.scrollWidth - (offset + middleOffset) < 600) {
+                    appendMoreItems();
+                }
+            }, 3000);
+        });
+    </script>
+</body>
+
+</html>
