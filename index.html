@@ -47,7 +47,7 @@
             min-width: 300px;
             height: 150px;
             display: flex;
-            flex-direction: column;
+            flex-direction: column; /* Allow for multiple lines of text */
             justify-content: center;
             align-items: center;
             border-right: 1px solid #555;
@@ -79,30 +79,27 @@
 
         .item-name {
             margin-bottom: 5px;
-            text-decoration: underline;
+            text-decoration: underline; /* Add an underline to the item name */
         }
 
         .item-description {
-            font-size: 12px;
+            font-size: 12px; /* Adjust the font size for the description */
         }
 
         .arrow {
             position: absolute;
             top: 0;
             left: 50%;
-            transform: translateX(-50%) rotate(90deg); /* Initial rotation set to 0 degrees */
+            transform: translateX(-50%) rotate(180deg); /* Flip the arrow 180 degrees */
             width: 0;
             height: 0;
-            border-top: 20px solid transparent;
-            border-bottom: 20px solid transparent;
-            border-left: 30px solid #000000;
-            transition: left 3s ease-out, transform 0.3s ease-out; /* Reduce transform duration */
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 30px solid #000000;
+            transition: left 3s ease-out, transform 3s ease-out;
             z-index: 2;
         }
 
-        .arrow.rotate {
-            transform: translateX(-50%) rotate(100deg); /* Rotate arrow 30 degrees */
-        }
 
         button {
             margin-top: 20px;
@@ -148,13 +145,13 @@
 
             // Create an array to represent the spawn rates
             const spawnRates = [
-                { name: 'base 4', rarityClass: '', description: 'Common Item', spawnRate: 80 },
-                { name: 'base 2', rarityClass: '', description: 'Common Item', spawnRate: 80 },
-                { name: 'base 5', rarityClass: 'rare', description: 'Rare Item', spawnRate: 15 },
-                { name: 'base 3', rarityClass: '', description: 'Common Item', spawnRate: 80 },
-                { name: 'base 1', rarityClass: 'rare', description: 'Rare Item', spawnRate: 15 },
-                { name: 'creations 5', rarityClass: 'ultra-rare', description: 'Ultra Rare Item', spawnRate: 5 },
-                { name: 'wood 1', rarityClass: 'rare', description: 'Rare Item', spawnRate: 15 },
+                { name: 'base 4', rarityClass: '', description: 'Worth = 150 robux', spawnRate: 50 },
+                { name: 'base 2', rarityClass: '', description: 'Worth = 100 robux', spawnRate: 70 },
+                { name: 'base 5', rarityClass: 'rare', description: 'Worth = 200 robux', spawnRate: 10 },
+                { name: 'base 3', rarityClass: '', description: 'Worth = 150 robux', spawnRate: 50 },
+                { name: 'base 1', rarityClass: 'rare', description: 'Worth = 150 robux', spawnRate: 20 },
+                { name: 'creations 1', rarityClass: 'ultra-rare', description: 'Worth = 250 robux🤑', spawnRate: 15 },
+                { name: 'wood 1', rarityClass: 'rare', description: 'Worth = 150 robux', spawnRate: 20 },
             ];
 
             const shuffledItems = [];
@@ -178,11 +175,11 @@
                 const itemName = document.createElement('div');
                 itemName.className = 'item-name';
                 itemName.textContent = item.name;
-                const itemDescription = document.createElement('div');
-                itemDescription.className = 'item-description';
+                const itemDescription = document.createElement('div'); // Create a new div for the item description
+                itemDescription.className = 'item-description'; // Add a class for styling
                 itemDescription.textContent = item.description;
                 div.appendChild(itemName);
-                div.appendChild(itemDescription);
+                div.appendChild(itemDescription); // Append the item description to the item div
                 slider.appendChild(div);
             });
         }
@@ -198,8 +195,8 @@
 
             const slider = document.getElementById('slider');
             const middleOffset = slider.clientWidth / 2;
-            // Calculate a relative offset based on the current position
-            const relativeOffset = Math.floor(Math.random() * 900) + 700;
+            // Calculate a relative offset based on the current position with a wider range (300 to 900)
+            const relativeOffset = Math.floor(Math.random() * 900) + 1000;
             const offset = currentOffset + relativeOffset;
             const duration = 3;
 
@@ -209,10 +206,7 @@
             // Update the arrow's position
             arrow.style.left = `calc(50% + ${offset}px)`;
 
-
             setTimeout(() => {
-                // Remove the rotation animation class when the animation is completed
-
                 const items = document.querySelectorAll('.item');
                 const selectedItemIndex = Math.floor((offset + middleOffset) / 300);
 
@@ -227,6 +221,7 @@
                 isAnimating = false;
 
                 if (slider.scrollWidth - (offset + middleOffset) < 600) {
+                    // Add more random items if needed
                     createRandomItems();
                 }
             }, duration * 1000);
