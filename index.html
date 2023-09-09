@@ -47,12 +47,14 @@
             min-width: 300px;
             height: 150px;
             display: flex;
+            flex-direction: column; /* Allow for multiple lines of text */
             justify-content: center;
             align-items: center;
             border-right: 1px solid #555;
             background: #444;
             transition: transform 0.3s;
             position: relative;
+            z-index: 1;
         }
 
         .item:hover {
@@ -75,6 +77,15 @@
             border-color: #f4f4f4;
         }
 
+        .item-name {
+            margin-bottom: 5px;
+            text-decoration: underline; /* Add an underline to the item name */
+        }
+
+        .item-description {
+            font-size: 12px; /* Adjust the font size for the description */
+        }
+
         .arrow {
             position: absolute;
             top: 0;
@@ -84,8 +95,9 @@
             height: 0;
             border-left: 20px solid transparent;
             border-right: 20px solid transparent;
-            border-bottom: 30px solid #ffcc00;
+            border-bottom: 30px solid #000000;
             transition: left 3s ease-out;
+            z-index: 2;
         }
 
         button {
@@ -123,62 +135,55 @@
 
     <script>
         let isAnimating = false;
+        let currentOffset = 0;
+        const arrow = document.getElementById('arrow');
 
-        function getRandomRarity() {
-    // Generate a random number between 1 and 100
-            const randomNumber = Math.floor(Math.random() * 100) + 1;
-            let rarityClass = '';
-
-            if (randomNumber <= 2) {
-                // 2% chance for Ultra Rare Item
-                rarityClass = 'ultra-rare';
-            } else if (randomNumber <= 15) {
-                // 13% chance for Rare Item
-                rarityClass = 'rare';
-            }
-
-            return rarityClass;
-        }
-
-
-        function shuffleArray(array) {
-            // Fisher-Yates shuffle algorithm
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
-
-        function appendItems() {
+        // Function to create items with adjusted spawn rates
+        function createRandomItems() {
             const slider = document.getElementById('slider');
-            const predefinedItems = [
-                { name: 'base 4', rarityClass: '' },
-                { name: 'base 2', rarityClass: '' },
-                { name: 'base 5', rarityClass: 'rare' },
-                { name: 'base 3', rarityClass: '' },
-                { name: 'base 1', rarityClass: 'rare' },
-                { name: 'creations 5', rarityClass: 'ultra-rare' },
-                { name: 'wood 1', rarityClass: 'rare' }
+
+            // Create an array to represent the spawn rates
+            const spawnRates = [
+                { name: 'base 4', rarityClass: '', description: 'Worth = 150 robux', spawnRate: 50 },
+                { name: 'base 2', rarityClass: '', description: 'Worth = 100 robux', spawnRate: 70 },
+                { name: 'base 5', rarityClass: 'rare', description: 'Worth = 200 robux', spawnRate: 10 },
+                { name: 'base 3', rarityClass: '', description: 'Worth = 150 robux', spawnRate: 50 },
+                { name: 'base 1', rarityClass: 'rare', description: 'Worth = 150 robux', spawnRate: 20 },
+                { name: 'creations 1', rarityClass: 'ultra-rare', description: 'Worth = 250 robux🤑', spawnRate: 15 },
+                { name: 'wood 1', rarityClass: 'rare', description: 'Worth = 150 robux', spawnRate: 20 },
             ];
 
-            // Shuffle the predefined items
-            shuffleArray(predefinedItems);
+            const shuffledItems = [];
 
-            predefinedItems.forEach(item => {
+            // Shuffle the items based on their spawn rates
+            spawnRates.forEach(item => {
+                for (let i = 0; i < item.spawnRate; i++) {
+                    shuffledItems.push(item);
+                }
+            });
+
+            for (let i = shuffledItems.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledItems[i], shuffledItems[j]] = [shuffledItems[j], shuffledItems[i]];
+            }
+
+            shuffledItems.forEach(item => {
                 const rarity = item.rarityClass;
                 const div = document.createElement('div');
                 div.className = `item ${rarity}`;
-                div.textContent = item.name;
+                const itemName = document.createElement('div');
+                itemName.className = 'item-name';
+                itemName.textContent = item.name;
+                const itemDescription = document.createElement('div'); // Create a new div for the item description
+                itemDescription.className = 'item-description'; // Add a class for styling
+                itemDescription.textContent = item.description;
+                div.appendChild(itemName);
+                div.appendChild(itemDescription); // Append the item description to the item div
                 slider.appendChild(div);
             });
         }
 
-        function appendMoreItems() {
-            appendItems();
-            appendItems();
-        }
-
-        appendItems();
+        createRandomItems();
 
         document.getElementById('openCase').addEventListener('click', function () {
             if (isAnimating) {
@@ -189,16 +194,15 @@
 
             const slider = document.getElementById('slider');
             const middleOffset = slider.clientWidth / 2;
-            let offset = Math.floor(Math.random() * slider.scrollWidth - middleOffset);
+            // Calculate a relative offset based on the current position with a wider range (300 to 900)
+            const relativeOffset = Math.floor(Math.random() * 900) + 700;
+            const offset = currentOffset + relativeOffset;
+            const duration = 3;
 
-            if (offset < 0) {
-                offset = 0;
-            }
-
-            slider.style.transition = 'transform 3s ease-out';
+            slider.style.transition = `transform ${duration}s ease-out`;
             slider.style.transform = `translateX(-${offset}px)`;
 
-            const arrow = document.getElementById('arrow');
+            // Update the arrow's position
             arrow.style.left = `calc(50% + ${offset}px)`;
 
             setTimeout(() => {
@@ -206,18 +210,20 @@
                 const selectedItemIndex = Math.floor((offset + middleOffset) / 300);
 
                 if (selectedItemIndex >= 0 && selectedItemIndex < items.length) {
-                    const winningItem = items[selectedItemIndex].textContent;
+                    const winningItem = items[selectedItemIndex].querySelector('.item-name').textContent;
                     document.getElementById('winnerMessage').textContent = `You won ${winningItem}!`;
                 } else {
                     console.error('Invalid selectedItemIndex:', selectedItemIndex);
                 }
 
+                currentOffset = offset;
                 isAnimating = false;
 
                 if (slider.scrollWidth - (offset + middleOffset) < 600) {
-                    appendMoreItems();
+                    // Add more random items if needed
+                    createRandomItems();
                 }
-            }, 3000);
+            }, duration * 1000);
         });
     </script>
 </body>
