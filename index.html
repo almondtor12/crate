@@ -16,8 +16,8 @@
 
     <script>
         // Replace these with your actual credentials
-        const validUsername = "your_username";
-        const validPassword = "your_password";
+        const validUsername = "joe-mama";
+        const validPassword = "pelegnotsexy";
 
         function authenticate() {
             const username = document.getElementById("username").value;
@@ -27,7 +27,7 @@
             if (username === validUsername && password === validPassword) {
                 loginResult.innerHTML = "Login successful. Redirecting...";
                 setTimeout(() => {
-                    window.location.href = "/crate-system.html"; // Redirect to your crate system page
+                    window.location.href = "/crate.html"; // Redirect to your crate system page
                 }, 2000); // Redirect after 2 seconds (adjust as needed)
             } else {
                 loginResult.innerHTML = "Invalid credentials. Please try again.";
